@@ -41,7 +41,7 @@ class GameManager(
             }
         }
         spawnTopRow()
-
+        context.playSoundEffect(R.raw.snd_obstacle_tick_cut)
     }
 
     private fun checkColision() {
@@ -133,6 +133,8 @@ class GameManager(
     fun gameOver(){
         if(healthPoints <= 0){
             healthPoints = 3
+            context.vibrateDevice(500)
+            context.playSoundEffect(R.raw.snd_mayday_cut)
         }
     }
 }
