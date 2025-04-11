@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GameActivity">
+    tools:context=".activities.GameActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/background_img"
@@ -20,8 +20,9 @@
         android:id="@+id/heart_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="5dp"
         android:orientation="horizontal">
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_heart1"
@@ -42,15 +43,37 @@
             app:srcCompat="@drawable/ic_heart"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:text="Score : 000"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:textSize="30sp">
-    </androidx.appcompat.widget.AppCompatTextView>
+        android:layout_above="@id/game_container"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@id/heart_container"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:text="Score : 0000"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="25sp">
+        </androidx.appcompat.widget.AppCompatTextView>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/timer_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="00:00:00"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="15sp">
+        </androidx.appcompat.widget.AppCompatTextView>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/game_container"
@@ -247,7 +270,6 @@
         android:id="@+id/button_container"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:alpha="100"
         android:layout_alignParentBottom="true">
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_move_left"

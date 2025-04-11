@@ -1,4 +1,4 @@
-package com.gamepackage.androidproject1
+package com.gamepackage.androidproject1.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
