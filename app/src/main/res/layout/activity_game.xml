@@ -52,6 +52,7 @@
         android:layout_toStartOf="@id/heart_container"
         android:orientation="horizontal">
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/score_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"

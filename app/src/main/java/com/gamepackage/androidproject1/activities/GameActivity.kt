@@ -20,8 +20,11 @@ class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
     private val startTime = System.currentTimeMillis()
-    private val DELAY: Long = 1000
+    private val OBSTACLE_DELAY: Long = 1000
+    private val TIMER_DELAY:Long = 100
     private val gameManager = GameManager(this)
+    private lateinit var hearts: Array<AppCompatImageView>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,28 +33,63 @@ class GameActivity : AppCompatActivity() {
 
         Glide.with(this).load(R.drawable.space_background).into(binding.backgroundImg)
         playSoundEffect(R.raw.snd_com_mumble)
+
+        binding.imgMoveLeft.setOnClickListener {
+            gameManager.movePlayer(-1)
+        }
+        binding.imgMoveRight.setOnClickListener {
+            gameManager.movePlayer(1)
+        }
+
+        hearts = arrayOf(
+            binding.imgHeart1,
+            binding.imgHeart2,
+            binding.imgHeart3
+        )
     }
 
-    private fun tick() {
+
+
+    private fun uI_tick() {
         Log.d("pttt", "tick - " + Thread.currentThread().name)
         val currentTime = System.currentTimeMillis()
         binding.timerText.text = TimeFormatter.formatTime(currentTime - startTime)
         updateGameView()
+    }
+    private fun obstacleTick(){
         gameManager.tickObstacles()
-
     }
 
-    private fun updateGameView() {
 
+
+    private fun updateGameView() {
+        gameManager.gameOver()
         updateObstacleField()
         updatePlayerField()
+        updateScore()
+        updateHealth()
+    }
 
+    private fun updateHealth() {
+        val health = gameManager.getHealthPoints()
+
+        for (i in hearts.indices) {
+            if(i < health) {
+                hearts[i].setImageResource(R.drawable.ic_heart)
+            } else {
+                hearts[i].setImageResource(0)
+            }
+        }
+    }
+
+    private fun updateScore() {
+        binding.scoreText.text = "Score: "+gameManager.getTotalScore().toString()
     }
 
     private fun updatePlayerField() {
 
-        var playerField: Array<Boolean> = gameManager.getPlayerField()
-        var playerContainer:LinearLayoutCompat  = binding.playerObjectContainer
+        val playerField: Array<Boolean> = gameManager.getPlayerField()
+        val playerContainer:LinearLayoutCompat  = binding.playerObjectContainer
         playerContainer.removeAllViews()
 
         for (lane in playerField.indices) {
@@ -73,8 +111,8 @@ class GameActivity : AppCompatActivity() {
 
     private fun updateObstacleField() {
 
-        var obstacleField: Array<Array<Obstacle?>> = gameManager.getObstacleField()
-        var gameContainer: LinearLayoutCompat = binding.gameContainer
+        val obstacleField: Array<Array<Obstacle?>> = gameManager.getObstacleField()
+        val gameContainer: LinearLayoutCompat = binding.gameContainer
         gameContainer.removeAllViews()
 
         for (row in obstacleField.indices) {
@@ -124,15 +162,23 @@ class GameActivity : AppCompatActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
 
     private fun startTimer() {
+        // Tick Ui
         coroutineScope.launch {
             while (isActive) {
-                tick()
-                delay(DELAY)
+                uI_tick()
+                delay(TIMER_DELAY)
+            }
+        }
+        // Tick obstacles
+        coroutineScope.launch {
+            while (isActive) {
+                obstacleTick()
+                delay(OBSTACLE_DELAY)
             }
         }
     }
 
     private fun stopTimer() {
-        coroutineScope.cancel()
+        coroutineScope.coroutineContext.cancelChildren()
     }
 }
