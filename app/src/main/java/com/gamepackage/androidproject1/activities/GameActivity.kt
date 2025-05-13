@@ -22,7 +22,7 @@ class GameActivity : AppCompatActivity() {
     private val startTime = System.currentTimeMillis()
     private val OBSTACLE_DELAY: Long = 1000
     private val TIMER_DELAY:Long = 100
-    private val gameManager = GameManager(this)
+    private val gameManager = GameManager(this, numRow = 10, numLane = 5)
     private lateinit var hearts: Array<AppCompatImageView>
 
 
@@ -48,19 +48,16 @@ class GameActivity : AppCompatActivity() {
         )
     }
 
-
-
     private fun uI_tick() {
         Log.d("pttt", "tick - " + Thread.currentThread().name)
         val currentTime = System.currentTimeMillis()
         binding.timerText.text = TimeFormatter.formatTime(currentTime - startTime)
         updateGameView()
     }
+
     private fun obstacleTick(){
         gameManager.tickObstacles()
     }
-
-
 
     private fun updateGameView() {
         gameManager.gameOver()
@@ -137,7 +134,7 @@ class GameActivity : AppCompatActivity() {
                     // Set image based on whether there's an obstacle or not
                     when (obstacle?.type) {
                         ObstacleType.ENEMY -> setImageResource(R.drawable.img_alien1)
-                        //ObstacleType.BONUS -> setImageResource(R.drawable.img_bonus)
+                        ObstacleType.BONUS -> setImageResource(R.drawable.img_coin)
                         else -> setImageDrawable(null) // Empty cell
                     }
                 }

@@ -63,7 +63,9 @@ class GameManager(
     }
 
     private fun bonusColision() {
-        TODO("Not yet implemented")
+        context.playSoundEffect(R.raw.snd_coin)
+        context.vibrateDevice(200)
+        setTotalScore(totalScore+30)
     }
 
     private fun crashColision() {
@@ -88,18 +90,18 @@ class GameManager(
             obstacleField[topRow][lane] = generateObstacleOrNull()
         }
         //make sure there is at least one empty spot
-        if (obstacleField[topRow].all { it != null }) {
+        if (obstacleField[topRow].all { it?.type == ObstacleType.ENEMY }) {
             val colToClear = (0 until numLane).random()
             obstacleField[topRow][colToClear] = null
         }
     }
 
     private fun generateObstacleOrNull(): Obstacle? {
-        val chance = if (difficulty) 40 else 20
-        return if ((0..99).random() < chance) {
-            Obstacle(ObstacleType.ENEMY)
-        } else {
-            null
+        val roll = (0..99).random()
+        return when {
+            roll < if (difficulty) 40 else 20 -> Obstacle(ObstacleType.ENEMY)
+            roll < if (difficulty) 50 else 25 -> Obstacle(ObstacleType.BONUS)
+            else -> null
         }
     }
 
