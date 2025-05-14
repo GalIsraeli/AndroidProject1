@@ -23,8 +23,8 @@ class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
     private val startTime = System.currentTimeMillis()
-    private var obstacleDelay: Long = 1000
-    private val timerDelay:Long = 100
+    private var OBSTACLE_DELAY: Long = 1000
+    private val TIMER_DELAY:Long = 100
     private lateinit var gameManager: GameManager
     private lateinit var hearts: Array<AppCompatImageView>
     private var backgroundMusicPlayer: MediaPlayer? = null
@@ -38,7 +38,7 @@ class GameActivity : AppCompatActivity() {
         gameManager = GameManager(numRow = 10, numLane = 5)
         val selectedSpeed = intent.getBooleanExtra("selectedSpeed", false)
         if(selectedSpeed){
-            obstacleDelay = 500
+            OBSTACLE_DELAY = 500
         }
 
         Glide.with(this).load(R.drawable.space_background).into(binding.backgroundImg)
@@ -191,14 +191,14 @@ class GameActivity : AppCompatActivity() {
         coroutineScope.launch {
             while (isActive) {
                 uiTick()
-                delay(timerDelay)
+                delay(TIMER_DELAY)
             }
         }
         // Tick obstacles
         coroutineScope.launch {
             while (isActive) {
                 obstacleTick()
-                delay(obstacleDelay)
+                delay(OBSTACLE_DELAY)
             }
         }
     }

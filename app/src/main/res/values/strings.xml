@@ -3,9 +3,10 @@
     <string name="speed_mode">Speed Mode</string>
     <string name="tilt_mode">Tilt Mode</string>
     <string name="start">Start</string>
-    <string name="back_to_menue">Back to menue</string>
+    <string name="back_to_menu">Back to menue</string>
     <string name="score">Score:</string>
     <string name="_0000">0000</string>
     <string name="_00_00_00">00:00:00</string>
     <string name="score_0000">Score : 0000</string>
+    <string name="map_view_desc">Map showing location of last score</string>
 </resources>

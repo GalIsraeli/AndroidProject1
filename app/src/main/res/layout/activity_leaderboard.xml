@@ -34,6 +34,8 @@
         android:textStyle="bold"
         tools:ignore="TextContrastCheck" />
 
+
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/score_val_text"
         android:layout_width="250dp"
@@ -59,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/back_to_menue"
+        android:text="@string/back_to_menu"
         android:textSize="30sp"
         android:textColor="@color/white"
         app:cornerRadius="24dp"
@@ -68,5 +70,13 @@
         app:iconPadding="8dp"
         android:textStyle="italic|bold"/>
 
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/leaderboard_map"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_below="@id/score_val_text"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:contentDescription="@string/map_view_desc" />
 
 </RelativeLayout>
