@@ -1,13 +1,9 @@
 package com.gamepackage.androidproject1.logic
 
-import android.content.Context
-import android.widget.Toast
 import com.gamepackage.androidproject1.R
-import com.gamepackage.androidproject1.utils.playSoundEffect
-import com.gamepackage.androidproject1.utils.vibrateDevice
+import com.gamepackage.androidproject1.utils.MySignal
 
 class GameManager(
-    private val context: Context,
     private val numLane: Int = 3,
     private val numRow: Int = 7,
     //private val speed: Boolean = false,
@@ -17,6 +13,7 @@ class GameManager(
     private var playerField: Array<Boolean> = Array(numLane) { false }
     private var totalScore = 0
     private var healthPoints = 3
+    private var gameOver = false
 
 
     init {
@@ -34,44 +31,43 @@ class GameManager(
     }
 
     fun tickObstacles() {
-        checkColision()
+        checkCollision()
         for (row in numRow - 1 downTo 1) {
             for (lane in 0 until numLane) {
                 obstacleField[row][lane] = obstacleField[row - 1][lane]
             }
         }
         spawnTopRow()
-        context.playSoundEffect(R.raw.snd_obstacle_tick_cut)
     }
 
-    private fun checkColision() {
+    private fun checkCollision() {
         for (lane in 0 until numLane) {
             val obstacle = obstacleField[numRow-1][lane]
             if (obstacle != null && playerField[lane]) {
-                colisionType(obstacle)
+                collisionType(obstacle)
             }
         }
         setTotalScore(totalScore+10)
     }
 
-    private fun colisionType(obstacle: Obstacle) {
+    private fun collisionType(obstacle: Obstacle) {
         if (obstacle.type == ObstacleType.ENEMY) {
-            crashColision()
+            crashCollision()
         }else if (obstacle.type == ObstacleType.BONUS) {
-            bonusColision()
+            bonusCollision()
         }
     }
 
-    private fun bonusColision() {
-        context.playSoundEffect(R.raw.snd_coin)
-        context.vibrateDevice(200)
+    private fun bonusCollision() {
+        MySignal.getInstance().playSoundEffect(R.raw.snd_coin)
+        MySignal.getInstance().vibrate(200)
         setTotalScore(totalScore+30)
     }
 
-    private fun crashColision() {
-        context.playSoundEffect(R.raw.snd_explosion_cut)
-        context.vibrateDevice(200)
-        Toast.makeText(context, "WE ARE HIT!", Toast.LENGTH_SHORT).show()
+    private fun crashCollision() {
+        MySignal.getInstance().playSoundEffect(R.raw.snd_explosion_cut)
+        MySignal.getInstance().vibrate(200)
+        MySignal.getInstance().showToast("WE ARE HIT!")
         setHealthPoints(healthPoints-1)
         setTotalScore(totalScore-30)
     }
@@ -132,11 +128,13 @@ class GameManager(
         return healthPoints
     }
 
-    fun gameOver(){
-        if(healthPoints <= 0){
-            healthPoints = 3
-            context.vibrateDevice(500)
-            context.playSoundEffect(R.raw.snd_mayday_cut)
+    fun gameOver(): Boolean{
+        if(healthPoints <= 0 && !gameOver){
+            gameOver = true
+            MySignal.getInstance().vibrate(500)
+            MySignal.getInstance().playSoundEffect(R.raw.snd_mayday_cut)
+            return true
         }
+        return false
     }
 }

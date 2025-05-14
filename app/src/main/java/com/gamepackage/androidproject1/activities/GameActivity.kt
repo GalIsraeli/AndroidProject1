@@ -1,5 +1,8 @@
 package com.gamepackage.androidproject1.activities
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
@@ -20,16 +23,23 @@ class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
     private val startTime = System.currentTimeMillis()
-    private val OBSTACLE_DELAY: Long = 1000
-    private val TIMER_DELAY:Long = 100
-    private val gameManager = GameManager(this, numRow = 10, numLane = 5)
+    private var obstacleDelay: Long = 1000
+    private val timerDelay:Long = 100
+    private lateinit var gameManager: GameManager
     private lateinit var hearts: Array<AppCompatImageView>
+    private var backgroundMusicPlayer: MediaPlayer? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        gameManager = GameManager(numRow = 10, numLane = 5)
+        val selectedSpeed = intent.getBooleanExtra("selectedSpeed", false)
+        if(selectedSpeed){
+            obstacleDelay = 500
+        }
 
         Glide.with(this).load(R.drawable.space_background).into(binding.backgroundImg)
         playSoundEffect(R.raw.snd_com_mumble)
@@ -48,7 +58,7 @@ class GameActivity : AppCompatActivity() {
         )
     }
 
-    private fun uI_tick() {
+    private fun uiTick() {
         Log.d("pttt", "tick - " + Thread.currentThread().name)
         val currentTime = System.currentTimeMillis()
         binding.timerText.text = TimeFormatter.formatTime(currentTime - startTime)
@@ -60,7 +70,14 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun updateGameView() {
-        gameManager.gameOver()
+        if(gameManager.gameOver()){
+            stopTimer()
+            stopBackgroundMusic()
+            val intent = Intent(this, LeaderboardActivity::class.java)
+            intent.putExtra("score", gameManager.getTotalScore())
+            startActivity(intent)
+            finish() // remove GameActivity from the back stack
+        }
         updateObstacleField()
         updatePlayerField()
         updateScore()
@@ -79,6 +96,7 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateScore() {
         binding.scoreText.text = "Score: "+gameManager.getTotalScore().toString()
     }
@@ -150,6 +168,16 @@ class GameActivity : AppCompatActivity() {
         startTimer()
     }
 
+    override fun onResume() {
+        super.onResume()
+        startBackgroundMusic()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopBackgroundMusic()
+    }
+
     override fun onStop() {
         super.onStop()
         stopTimer()
@@ -162,15 +190,15 @@ class GameActivity : AppCompatActivity() {
         // Tick Ui
         coroutineScope.launch {
             while (isActive) {
-                uI_tick()
-                delay(TIMER_DELAY)
+                uiTick()
+                delay(timerDelay)
             }
         }
         // Tick obstacles
         coroutineScope.launch {
             while (isActive) {
                 obstacleTick()
-                delay(OBSTACLE_DELAY)
+                delay(obstacleDelay)
             }
         }
     }
@@ -178,4 +206,18 @@ class GameActivity : AppCompatActivity() {
     private fun stopTimer() {
         coroutineScope.coroutineContext.cancelChildren()
     }
+
+    private fun startBackgroundMusic() {
+        backgroundMusicPlayer = MediaPlayer.create(this, R.raw.snd_background_music)
+        backgroundMusicPlayer?.isLooping = true
+        backgroundMusicPlayer?.start()
+    }
+
+    private fun stopBackgroundMusic() {
+        backgroundMusicPlayer?.stop()
+        backgroundMusicPlayer?.release()
+        backgroundMusicPlayer = null
+    }
+
 }
+

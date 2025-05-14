@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.LeaderboardActivity">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/background_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00BCD4"
+        android:scaleType="centerCrop">
+    </androidx.appcompat.widget.AppCompatImageView>
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/score_text"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:shadowColor="#AA000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:text="@string/score"
+        android:textColor="#4AF2D4"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        tools:ignore="TextContrastCheck" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/score_val_text"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/score_text"
+        android:layout_alignStart="@id/score_text"
+        android:gravity="center"
+        android:shadowColor="#AA000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:text="@string/_0000"
+        android:textColor="#FFFFFF"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        tools:ignore="TextContrastCheck" />
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_back_to_menu"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/back_to_menue"
+        android:textSize="30sp"
+        android:textColor="@color/white"
+        app:cornerRadius="24dp"
+        android:backgroundTint="#040303"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:textStyle="italic|bold"/>
+
+
+</RelativeLayout>
