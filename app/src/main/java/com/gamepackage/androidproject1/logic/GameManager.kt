@@ -6,7 +6,6 @@ import com.gamepackage.androidproject1.utils.MySignal
 class GameManager(
     private val numLane: Int = 3,
     private val numRow: Int = 7,
-    //private val speed: Boolean = false,
     private val difficulty: Boolean = false
 ) {
     private var obstacleField: Array<Array<Obstacle?>> = Array(numRow) { Array(numLane) { null } }
@@ -14,6 +13,7 @@ class GameManager(
     private var totalScore = 0
     private var healthPoints = 3
     private var gameOver = false
+    private var currPlayerPosition : Int = numLane/2
 
 
     init {
@@ -102,14 +102,15 @@ class GameManager(
     }
 
     fun movePlayer(i: Int) {
-        for(lane in 0 until numLane){
-            if(playerField[lane]){
-                val newPosition = (lane + i).coerceIn(0, numLane - 1)
-                playerField[lane] = false
-                playerField[newPosition] = true
-                break
-            }
-        }
+        val newPosition = (currPlayerPosition+i).coerceIn(0, numLane - 1)
+        setPlayerLane(newPosition)
+    }
+
+    fun setPlayerLane(i :Int){
+        val newPosition = i.coerceIn(0, numLane - 1)
+        playerField[currPlayerPosition] = false
+        playerField[newPosition] = true
+        currPlayerPosition = newPosition
     }
 
     fun getObstacleField(): Array<Array<Obstacle?>> {

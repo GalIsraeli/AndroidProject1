@@ -11,8 +11,8 @@ import androidx.core.graphics.toColorInt
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var selectedSpeed: Boolean = false // false = slow, true = fast
-    private var tiltMode: Boolean = false
+    private var SPEED_MODE: Boolean = false // false = slow, true = fast
+    private var TILT_MODE: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +24,8 @@ class MainActivity : AppCompatActivity() {
         val selectedColor = "#FF9800".toColorInt()  // Blue for inactive
 
         binding.btnSpeedMode.setOnClickListener {
-            selectedSpeed = !selectedSpeed
-            if (selectedSpeed) {
+            SPEED_MODE = !SPEED_MODE
+            if (SPEED_MODE) {
                 binding.btnSpeedMode.setBackgroundColor(selectedColor)
             } else {
                 binding.btnSpeedMode.setBackgroundColor(defaultColor1)
@@ -33,8 +33,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnTiltMode.setOnClickListener {
-            tiltMode = !tiltMode
-            if (tiltMode) {
+            TILT_MODE = !TILT_MODE
+            if (TILT_MODE) {
                 binding.btnTiltMode.setBackgroundColor(selectedColor)
             } else {
                 binding.btnTiltMode.setBackgroundColor(defaultColor2)
@@ -43,8 +43,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnStart.setOnClickListener {
             val intent = Intent(this, GameActivity::class.java)
-            intent.putExtra("selectedSpeed", selectedSpeed)
-            intent.putExtra("tiltMode", tiltMode)
+            intent.putExtra("SPEED_MODE", SPEED_MODE)
+            intent.putExtra("TILT_MODE", TILT_MODE)
             startActivity(intent)
         }
 

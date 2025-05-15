@@ -2,10 +2,16 @@ package com.gamepackage.androidproject1.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -19,36 +25,44 @@ import com.gamepackage.androidproject1.utils.TimeFormatter
 import com.gamepackage.androidproject1.utils.playSoundEffect
 import kotlinx.coroutines.*
 
-class GameActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity() , SensorEventListener {
 
     private lateinit var binding: ActivityGameBinding
     private val startTime = System.currentTimeMillis()
     private var OBSTACLE_DELAY: Long = 1000
+    private var TILT_MODE: Boolean = false
     private val TIMER_DELAY:Long = 100
     private lateinit var gameManager: GameManager
     private lateinit var hearts: Array<AppCompatImageView>
     private var backgroundMusicPlayer: MediaPlayer? = null
+    private val NUM_LANES : Int = 5
+    private val NUM_ROWS : Int = 10
+
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Glide.with(this).load(R.drawable.space_background).into(binding.backgroundImg)
+        playSoundEffect(R.raw.snd_com_mumble)
+        gameManager = GameManager(numRow = NUM_ROWS, numLane = NUM_LANES)
 
-        gameManager = GameManager(numRow = 10, numLane = 5)
-        val selectedSpeed = intent.getBooleanExtra("selectedSpeed", false)
-        if(selectedSpeed){
+        val speedMode = intent.getBooleanExtra("SPEED_MODE", false)
+        val tiltMode = intent.getBooleanExtra("TILT_MODE", false)
+        if(tiltMode){
+            TILT_MODE = true
+        }
+        if(speedMode){
             OBSTACLE_DELAY = 500
         }
 
-        Glide.with(this).load(R.drawable.space_background).into(binding.backgroundImg)
-        playSoundEffect(R.raw.snd_com_mumble)
-
-        binding.imgMoveLeft.setOnClickListener {
-            gameManager.movePlayer(-1)
-        }
-        binding.imgMoveRight.setOnClickListener {
-            gameManager.movePlayer(1)
+        if(TILT_MODE){
+            setupTilt()
+        }else{
+            setupButtons()
         }
 
         hearts = arrayOf(
@@ -56,6 +70,27 @@ class GameActivity : AppCompatActivity() {
             binding.imgHeart2,
             binding.imgHeart3
         )
+    }
+
+    private fun setupTilt() {
+        binding.buttonContainer.visibility = View.GONE;
+        // adjusting view to fit screen
+        val params = binding.playerObjectContainer.layoutParams as RelativeLayout.LayoutParams
+        params.removeRule(RelativeLayout.ABOVE)
+        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+        binding.playerObjectContainer.layoutParams = params
+        //setting up sensor
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    }
+
+    private fun setupButtons() {
+        binding.imgMoveLeft.setOnClickListener {
+            gameManager.movePlayer(-1)
+        }
+        binding.imgMoveRight.setOnClickListener {
+            gameManager.movePlayer(1)
+        }
     }
 
     private fun uiTick() {
@@ -171,11 +206,19 @@ class GameActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         startBackgroundMusic()
+        if (TILT_MODE) {
+            accelerometer?.also {
+                sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
+            }
+        }
     }
 
     override fun onPause() {
         super.onPause()
         stopBackgroundMusic()
+        if (TILT_MODE) {
+            sensorManager.unregisterListener(this)
+        }
     }
 
     override fun onStop() {
@@ -217,6 +260,26 @@ class GameActivity : AppCompatActivity() {
         backgroundMusicPlayer?.stop()
         backgroundMusicPlayer?.release()
         backgroundMusicPlayer = null
+    }
+
+
+    ///////////////////sensor/////////////////////////////
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        event?.let {
+            val x = -it.values[0]
+            //calculate lane
+            val maxTilt = 5f // maximum tilt value
+            val numLanes = NUM_LANES
+            val clampedX = x.coerceIn(-maxTilt, maxTilt)
+            val lane = (((clampedX + maxTilt) / (2 * maxTilt)) * (numLanes - 1)).toInt()
+
+            gameManager.setPlayerLane(lane)
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        //not used
     }
 
 }
