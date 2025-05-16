@@ -3,6 +3,7 @@ package com.gamepackage.androidproject1.activities
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.bumptech.glide.Glide
 import com.gamepackage.androidproject1.R
 import com.gamepackage.androidproject1.databinding.ActivityLeaderboardBinding
@@ -12,7 +13,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.CameraUpdateFactory
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gamepackage.androidproject1.logic.ScoreAdapter
 
@@ -44,7 +44,7 @@ class LeaderboardActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.leaderboardRecyclerView.adapter = adapter
         binding.leaderboardRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val dividerItemDecoration = DividerItemDecoration(this, LinearLayoutManager.VERTICAL)
+        val dividerItemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         binding.leaderboardRecyclerView.addItemDecoration(dividerItemDecoration)
 
         binding.btnBackToMenu.setOnClickListener {

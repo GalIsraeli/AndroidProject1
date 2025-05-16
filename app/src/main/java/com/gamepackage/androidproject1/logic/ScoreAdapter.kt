@@ -2,7 +2,6 @@ package com.gamepackage.androidproject1.logic
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.gamepackage.androidproject1.R
 import com.gamepackage.androidproject1.databinding.ItemScoreBinding
@@ -31,18 +30,10 @@ class ScoreAdapter(
 
         // Color the top 3 ranks with special colors
         when (position) {
-            0 -> { // Gold
-                holder.binding.root.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.gold))
-            }
-            1 -> { // Silver
-                holder.binding.root.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.silver))
-            }
-            2 -> { // Bronze
-                holder.binding.root.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.bronze))
-            }
-            else -> { // Default background
-                holder.binding.root.setBackgroundResource(R.drawable.item_background)
-            }
+            0 -> holder.binding.root.setBackgroundResource(R.drawable.bg_gold)
+            1 -> holder.binding.root.setBackgroundResource(R.drawable.bg_silver)
+            2 -> holder.binding.root.setBackgroundResource(R.drawable.bg_bronze)
+            else -> holder.binding.root.setBackgroundResource(R.drawable.ripple_background)
         }
 
         // Handle click
