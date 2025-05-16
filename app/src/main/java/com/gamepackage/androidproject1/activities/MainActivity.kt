@@ -42,9 +42,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnStart.setOnClickListener {
+            val playerName = binding.nameTextBox.text.toString()
             val intent = Intent(this, GameActivity::class.java)
             intent.putExtra("SPEED_MODE", SPEED_MODE)
             intent.putExtra("TILT_MODE", TILT_MODE)
+            intent.putExtra("PLAYER_NAME", playerName)
+            startActivity(intent)
+        }
+
+        binding.btnLeaderBoard.setOnClickListener {
+            val intent = Intent(this, LeaderboardActivity::class.java)
             startActivity(intent)
         }
 

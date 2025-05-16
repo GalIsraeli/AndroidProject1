@@ -16,42 +16,28 @@
         android:scaleType="centerCrop">
     </androidx.appcompat.widget.AppCompatImageView>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/btn_back_to_menu"
+        android:orientation="vertical">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/score_text"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
-        android:gravity="center"
-        android:shadowColor="#AA000000"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="4"
-        android:text="@string/score"
-        android:textColor="#4AF2D4"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        tools:ignore="TextContrastCheck" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/leaderboardRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_margin="8dp"
+            />
 
-
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/score_val_text"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/score_text"
-        android:layout_alignStart="@id/score_text"
-        android:gravity="center"
-        android:shadowColor="#AA000000"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="4"
-        android:text="@string/_0000"
-        android:textColor="#FFFFFF"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        tools:ignore="TextContrastCheck" />
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/leaderboard_map"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/map_view_desc"
+            android:layout_margin="8dp"/>
+    </LinearLayout>
 
 
     <com.google.android.material.button.MaterialButton
@@ -70,13 +56,5 @@
         app:iconPadding="8dp"
         android:textStyle="italic|bold"/>
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/leaderboard_map"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_below="@id/score_val_text"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:contentDescription="@string/map_view_desc" />
 
 </RelativeLayout>

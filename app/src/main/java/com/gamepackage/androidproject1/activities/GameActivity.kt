@@ -2,10 +2,12 @@ package com.gamepackage.androidproject1.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Location
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -15,22 +17,32 @@ import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import android.Manifest
 import com.gamepackage.androidproject1.R
 import com.gamepackage.androidproject1.databinding.ActivityGameBinding
 import com.gamepackage.androidproject1.logic.GameManager
 import com.gamepackage.androidproject1.logic.Obstacle
 import com.gamepackage.androidproject1.logic.ObstacleType
+import com.gamepackage.androidproject1.logic.Score
+import com.gamepackage.androidproject1.utils.MSPV3
 import com.gamepackage.androidproject1.utils.TimeFormatter
 import com.gamepackage.androidproject1.utils.playSoundEffect
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.*
 
 class GameActivity : AppCompatActivity() , SensorEventListener {
 
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1001
     private lateinit var binding: ActivityGameBinding
     private val startTime = System.currentTimeMillis()
     private var OBSTACLE_DELAY: Long = 1000
     private var TILT_MODE: Boolean = false
+    private var SPEED_MODE: Boolean = false
+    private var PLAYER_NAME : String = "NA"
     private val TIMER_DELAY:Long = 100
     private lateinit var gameManager: GameManager
     private lateinit var hearts: Array<AppCompatImageView>
@@ -40,6 +52,9 @@ class GameActivity : AppCompatActivity() , SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var currentLatitude: Double = 0.0
+    private var currentLongitude: Double = 0.0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,13 +64,13 @@ class GameActivity : AppCompatActivity() , SensorEventListener {
         Glide.with(this).load(R.drawable.space_background).into(binding.backgroundImg)
         playSoundEffect(R.raw.snd_com_mumble)
         gameManager = GameManager(numRow = NUM_ROWS, numLane = NUM_LANES)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        getLastLocation()
+        SPEED_MODE = intent.getBooleanExtra("SPEED_MODE", false)
+        TILT_MODE = intent.getBooleanExtra("TILT_MODE", false)
+        PLAYER_NAME = intent.getStringExtra("PLAYER_NAME").takeIf { !it.isNullOrBlank() } ?: "Anonymous"
 
-        val speedMode = intent.getBooleanExtra("SPEED_MODE", false)
-        val tiltMode = intent.getBooleanExtra("TILT_MODE", false)
-        if(tiltMode){
-            TILT_MODE = true
-        }
-        if(speedMode){
+        if(SPEED_MODE){
             OBSTACLE_DELAY = 500
         }
 
@@ -73,7 +88,7 @@ class GameActivity : AppCompatActivity() , SensorEventListener {
     }
 
     private fun setupTilt() {
-        binding.buttonContainer.visibility = View.GONE;
+        binding.buttonContainer.visibility = View.GONE
         // adjusting view to fit screen
         val params = binding.playerObjectContainer.layoutParams as RelativeLayout.LayoutParams
         params.removeRule(RelativeLayout.ABOVE)
@@ -106,18 +121,35 @@ class GameActivity : AppCompatActivity() , SensorEventListener {
 
     private fun updateGameView() {
         if(gameManager.gameOver()){
-            stopTimer()
-            stopBackgroundMusic()
-            val intent = Intent(this, LeaderboardActivity::class.java)
-            intent.putExtra("score", gameManager.getTotalScore())
-            startActivity(intent)
-            finish() // remove GameActivity from the back stack
+            endGame()
         }
         updateObstacleField()
         updatePlayerField()
         updateScore()
         updateHealth()
     }
+
+    private fun endGame() {
+        stopTimer()
+        stopBackgroundMusic()
+
+        val newScore = Score(
+            playerName = PLAYER_NAME,
+            score = gameManager.getTotalScore(),
+            latitude = currentLatitude,
+            longitude = currentLongitude
+        )
+
+        MSPV3.getInstance().addNewScore(newScore)
+
+        //launch leaderboards
+        val intent = Intent(this, LeaderboardActivity::class.java)
+        intent.putExtra("latitude", currentLatitude)
+        intent.putExtra("longitude", currentLongitude)
+        startActivity(intent)
+        finish() // remove GameActivity from the back stack
+    }
+
 
     private fun updateHealth() {
         val health = gameManager.getHealthPoints()
@@ -224,6 +256,20 @@ class GameActivity : AppCompatActivity() , SensorEventListener {
     override fun onStop() {
         super.onStop()
         stopTimer()
+    }
+
+    private fun getLastLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    currentLatitude = location.latitude
+                    currentLongitude = location.longitude
+                }
+            }
+        } else {
+            // Request permission, handle callback in onRequestPermissionsResult
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
+        }
     }
     //////////////////////////////// START STOP CODE ////////////////////////////////
 

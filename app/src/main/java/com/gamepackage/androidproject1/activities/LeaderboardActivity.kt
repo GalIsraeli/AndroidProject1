@@ -6,11 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.gamepackage.androidproject1.R
 import com.gamepackage.androidproject1.databinding.ActivityLeaderboardBinding
+import com.gamepackage.androidproject1.utils.MSPV3
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.CameraUpdateFactory
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.gamepackage.androidproject1.logic.ScoreAdapter
 
 class LeaderboardActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -24,8 +28,24 @@ class LeaderboardActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         Glide.with(this).load(R.drawable.space_background).into(binding.backgroundImg)
-        val score = intent.getIntExtra("score", 0)
-        binding.scoreValText.text = score.toString()
+
+
+
+        val topScores = MSPV3.getInstance().getTopScores()
+
+        val adapter = ScoreAdapter(topScores) { score ->
+            // when a score item is clicked — move the map camera
+            val location = LatLng(score.latitude, score.longitude)
+            binding.leaderboardMap.getMapAsync { googleMap ->
+                googleMap.addMarker(MarkerOptions().position(location).title("${score.playerName}'s Score"))
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 12f))
+            }
+        }
+        binding.leaderboardRecyclerView.adapter = adapter
+        binding.leaderboardRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        val dividerItemDecoration = DividerItemDecoration(this, LinearLayoutManager.VERTICAL)
+        binding.leaderboardRecyclerView.addItemDecoration(dividerItemDecoration)
 
         binding.btnBackToMenu.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
@@ -45,7 +65,9 @@ class LeaderboardActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
-        val testLocation = LatLng(51.5074, -0.1278) // London, test location
+        val latitude = intent.getDoubleExtra("latitude", 0.0)  // 0.0 is default if not found
+        val longitude = intent.getDoubleExtra("longitude", 0.0)
+        val testLocation = LatLng(latitude, longitude)
         googleMap.addMarker(MarkerOptions().position(testLocation).title("Test Location"))
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(testLocation, 10f))
     }
